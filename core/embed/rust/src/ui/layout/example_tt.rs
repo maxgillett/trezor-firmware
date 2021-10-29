@@ -5,8 +5,8 @@ use crate::{
     micropython::{buffer::Buffer, obj::Obj},
     ui::{
         component::{
-            model_tt::{theme, Button, Dialog, DialogMsg, Text},
-            Child,
+            model_tt::{theme, Button, Dialog, DialogMsg},
+            Child, Text,
         },
         display,
     },

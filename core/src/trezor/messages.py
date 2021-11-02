@@ -5049,7 +5049,7 @@ if TYPE_CHECKING:
         balance: "int"
         spendable: "bool | None"
         delegatable: "bool | None"
-        delegate: "bytes | None"
+        delegate: "bytes"
         script: "bytes"
 
         def __init__(
@@ -5061,11 +5061,11 @@ if TYPE_CHECKING:
             gas_limit: "int",
             storage_limit: "int",
             balance: "int",
+            delegate: "bytes",
             script: "bytes",
             manager_pubkey: "bytes | None" = None,
             spendable: "bool | None" = None,
             delegatable: "bool | None" = None,
-            delegate: "bytes | None" = None,
         ) -> None:
             pass
 

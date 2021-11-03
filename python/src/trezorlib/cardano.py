@@ -611,7 +611,7 @@ def get_address(
     protocol_magic: int = PROTOCOL_MAGICS["mainnet"],
     network_id: int = NETWORK_IDS["mainnet"],
     show_display: bool = False,
-) -> messages.CardanoAddress:
+) -> str:
     return client.call(
         messages.CardanoGetAddress(
             address_parameters=address_parameters,

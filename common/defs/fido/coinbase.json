@@ -1,0 +1,10 @@
+{
+  "name": "Coinbase",
+  "u2f": [
+    {
+      "app_id": "e27d61b4e99de0ed98163cb38b7af933c6665e5509e8490837055813778e236a",
+      "label": "coinbase.com"
+    }
+  ],
+  "webauthn": ["coinbase.com"]
+}

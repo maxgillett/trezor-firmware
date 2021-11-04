@@ -19,6 +19,7 @@
 
 #include "py/objstr.h"
 
+#include "rand.h"
 #include "zkp_bip340.h"
 
 /// package: trezorcrypto.bip340

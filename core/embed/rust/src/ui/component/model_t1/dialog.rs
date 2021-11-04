@@ -1,14 +1,11 @@
 use super::{
-    button::{Button, ButtonMsg::Clicked},
+    button::{Button, ButtonMsg::Clicked, ButtonPos},
     theme,
 };
-use crate::{
-    micropython::buffer::Buffer,
-    ui::{
-        component::{Child, Component, Event, EventCtx},
-        display,
-        geometry::{Point, Rect},
-    },
+use crate::ui::{
+    component::{Child, Component, Event, EventCtx},
+    display,
+    geometry::{Offset, Rect},
 };
 
 pub enum DialogMsg<T> {
@@ -18,7 +15,7 @@ pub enum DialogMsg<T> {
 }
 
 pub struct Dialog<T, U> {
-    header: Option<Buffer>,
+    header: Option<(U, Rect)>,
     content: Child<T>,
     left_btn: Option<Child<Button<U>>>,
     right_btn: Option<Child<Button<U>>>,
@@ -28,26 +25,16 @@ impl<T: Component, U: AsRef<[u8]>> Dialog<T, U> {
     pub fn new(
         area: Rect,
         content: impl FnOnce(Rect) -> T,
-        left: Option<impl FnOnce(Rect) -> Button<U>>,
-        right: Option<impl FnOnce(Rect) -> Button<U>>,
-        header: Option<Buffer>,
+        left: Option<impl FnOnce(Rect, ButtonPos) -> Button<U>>,
+        right: Option<impl FnOnce(Rect, ButtonPos) -> Button<U>>,
+        header: Option<U>,
     ) -> Self {
-        let button_h = 11;
-        let header_h = 13;
-
-        let (content_area, buttons) = area.hsplit(-button_h);
-        let content_area = if header.is_none() {
-            content_area
-        } else {
-            content_area.hsplit(header_h).1
-        };
-        let (left_rect, right_rect) = buttons.vsplit(buttons.width() / 2);
-
+        let (header_area, content_area, button_area) = Self::areas(area, &header);
         let content = Child::new(content(content_area));
-        let left_btn = left.map(|f| Child::new(f(left_rect)));
-        let right_btn = right.map(|f| Child::new(f(right_rect)));
+        let left_btn = left.map(|f| Child::new(f(button_area, ButtonPos::Left)));
+        let right_btn = right.map(|f| Child::new(f(button_area, ButtonPos::Right)));
         Self {
-            header: header,
+            header: header.zip(header_area),
             content: content,
             left_btn: left_btn,
             right_btn: right_btn,
@@ -55,16 +42,29 @@ impl<T: Component, U: AsRef<[u8]>> Dialog<T, U> {
     }
 
     fn paint_header(&self) {
-        if let Some(h) = &self.header {
-            let line_height = theme::FONT_BOLD.line_height();
+        if let Some((title, area)) = &self.header {
             display::text(
-                Point::new(0, line_height - 2),
-                h,
+                area.bottom_left() + Offset::new(0, -2),
+                title.as_ref(),
                 theme::FONT_BOLD,
                 theme::FG,
                 theme::BG,
             );
-            display::dotted_line(Point::new(0, line_height), theme::FG)
+            display::dotted_line(area.bottom_left(), area.width(), theme::FG)
+        }
+    }
+
+    fn areas(area: Rect, header: &Option<U>) -> (Option<Rect>, Rect, Rect) {
+        let button_height = theme::FONT_BOLD.line_height() + 2;
+        let header_height = theme::FONT_BOLD.line_height();
+
+        let (content_area, button_area) = area.hsplit(-button_height);
+        if header.is_none() {
+            (None, content_area, button_area)
+        } else {
+            let (header_area, content_area) = content_area.hsplit(header_height);
+            let (_space, content_area) = content_area.hsplit(4);
+            (Some(header_area), content_area, button_area)
         }
     }
 }

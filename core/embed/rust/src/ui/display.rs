@@ -75,8 +75,8 @@ pub fn rounded_rect1(r: Rect, fg_color: Color, bg_color: Color) {
 }
 
 // Used on T1 only.
-pub fn dotted_line(start: Point, color: Color) {
-    for x in (start.x..display::width()).step_by(2) {
+pub fn dotted_line(start: Point, width: i32, color: Color) {
+    for x in (start.x..width).step_by(2) {
         display::bar(x, start.y, 1, 1, color.into());
     }
 }

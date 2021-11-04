@@ -2,10 +2,10 @@ use core::convert::{TryFrom, TryInto};
 
 use crate::{
     error::Error,
-    micropython::{buffer::Buffer, func::unpack_args, obj::Obj},
+    micropython::{buffer::Buffer, map::Map, obj::Obj, qstr::Qstr},
     ui::{
         component::{
-            model_t1::{theme, Button, ButtonPos, Dialog, DialogMsg},
+            model_t1::{theme, Button, Dialog, DialogMsg},
             Child, Text,
         },
         display,
@@ -32,20 +32,20 @@ where
 }
 
 #[no_mangle]
-extern "C" fn ui_layout_new_confirm_action(n_args: usize, args: *const Obj) -> Obj {
-    let block = move || {
-        if n_args != 7 {
-            return Err(Error::TypeError);
-        }
-        let args = unpack_args(n_args, args);
-
-        let title: Buffer = args[0].try_into()?;
-        let action: Option<Buffer> = args[1].try_into().ok();
-        let description: Option<Buffer> = args[2].try_into().ok();
-        let verb: Option<Buffer> = args[3].try_into().ok();
-        let verb_cancel: Option<Buffer> = args[4].try_into().ok();
-        let _hold: bool = args[5].try_into()?;
-        let reverse: bool = args[6].try_into()?;
+extern "C" fn ui_layout_new_confirm_action(
+    n_args: usize,
+    args: *const Obj,
+    kwargs: *const Map,
+) -> Obj {
+    let block = |_args: &[Obj], kwargs: &Map| {
+        let title: Buffer = kwargs.get(Qstr::MP_QSTR_title)?.try_into()?;
+        let action: Option<Buffer> = kwargs.get(Qstr::MP_QSTR_action)?.try_into_option()?;
+        let description: Option<Buffer> =
+            kwargs.get(Qstr::MP_QSTR_description)?.try_into_option()?;
+        let verb: Option<Buffer> = kwargs.get(Qstr::MP_QSTR_verb)?.try_into_option()?;
+        let verb_cancel: Option<Buffer> =
+            kwargs.get(Qstr::MP_QSTR_verb_cancel)?.try_into_option()?;
+        let reverse: bool = kwargs.get(Qstr::MP_QSTR_reverse)?.try_into()?;
 
         let format = match (&action, &description, reverse) {
             (Some(_), Some(_), false) => "{bold}{action}\n\r{normal}{description}",
@@ -56,10 +56,9 @@ extern "C" fn ui_layout_new_confirm_action(n_args: usize, args: *const Obj) -> O
         };
 
         let left = verb_cancel
-            .map(|label| |_area| Button::with_text(ButtonPos::Left, label, theme::button_cancel()));
-        let right = verb.map(|label| {
-            |_area| Button::with_text(ButtonPos::Right, label, theme::button_default())
-        });
+            .map(|label| |area, pos| Button::with_text(area, pos, label, theme::button_cancel()));
+        let right = verb
+            .map(|label| |area, pos| Button::with_text(area, pos, label, theme::button_default()));
 
         let obj = LayoutObj::new(Child::new(Dialog::new(
             display::screen(),
@@ -74,7 +73,7 @@ extern "C" fn ui_layout_new_confirm_action(n_args: usize, args: *const Obj) -> O
         )))?;
         Ok(obj.into())
     };
-    unsafe { util::try_or_raise(block) }
+    unsafe { util::try_with_args_and_kwargs(n_args, args, kwargs, block) }
 }
 
 #[cfg(test)]

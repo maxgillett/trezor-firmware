@@ -45,13 +45,13 @@ async def confirm_action(
         ctx,
         ui.RustLayout(
             layout_new_confirm_action(
-                title.upper(),
-                action,
-                description,
-                verb,
-                verb_cancel,
-                hold,
-                reverse,
+                title=title.upper(),
+                action=action,
+                description=description,
+                verb=verb,
+                verb_cancel=verb_cancel,
+                hold=hold,
+                reverse=reverse,
             )
         ),
         br_type,

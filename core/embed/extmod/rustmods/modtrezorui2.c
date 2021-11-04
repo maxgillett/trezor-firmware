@@ -38,10 +38,9 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(mod_trezorui2_layout_new_example_obj,
 ///     hold: bool | None,
 ///     reverse: bool,
 /// ) -> int:
-///     """Example layout."""
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(
-    mod_trezorui2_layout_new_confirm_action_obj, 7, 7,
-    ui_layout_new_confirm_action);
+///     """Example layout. All arguments must be passed as kwargs."""
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mod_trezorui2_layout_new_confirm_action_obj,
+                                  0, ui_layout_new_confirm_action);
 #endif
 
 STATIC const mp_rom_map_elem_t mp_module_trezorui2_globals_table[] = {

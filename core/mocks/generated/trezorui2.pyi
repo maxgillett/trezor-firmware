@@ -16,4 +16,4 @@ def layout_new_confirm_action(
     hold: bool | None,
     reverse: bool,
 ) -> int:
-    """Example layout."""
+    """Example layout. All arguments must be passed as kwargs."""

@@ -113,6 +113,7 @@ def test_show_segwit(client, show_display, coin, path, script_type, address):
     )
 
 
+# Tests https://github.com/bitcoin/bips/blob/master/bip-0086.mediawiki#test-vectors
 @pytest.mark.skip_t1
 @pytest.mark.setup_client(
     mnemonic="abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"

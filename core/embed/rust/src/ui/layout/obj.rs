@@ -7,7 +7,6 @@ use core::{
 use crate::{
     error::Error,
     micropython::{
-        func::unpack_args,
         gc::Gc,
         map::Map,
         obj::{Obj, ObjBase},
@@ -283,11 +282,10 @@ extern "C" fn ui_layout_set_timer_fn(this: Obj, timer_fn: Obj) -> Obj {
 }
 
 extern "C" fn ui_layout_hid_event(n_args: usize, args: *const Obj) -> Obj {
-    let block = || {
-        if n_args != 4 {
+    let block = |args: &[Obj], _kwargs: &Map| {
+        if args.len() != 4 {
             return Err(Error::TypeError);
         }
-        let args = unpack_args(n_args, args);
         let this: Gc<LayoutObj> = args[0].try_into()?;
         let event = HidEvent::new(
             args[1].try_into()?,
@@ -297,7 +295,7 @@ extern "C" fn ui_layout_hid_event(n_args: usize, args: *const Obj) -> Obj {
         let msg = this.obj_event(Event::HumanInput(event))?;
         Ok(msg)
     };
-    unsafe { util::try_or_raise(block) }
+    unsafe { util::try_with_args_and_kwargs(n_args, args, &Map::EMPTY, block) }
 }
 
 extern "C" fn ui_layout_timer(this: Obj, token: Obj) -> Obj {

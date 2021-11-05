@@ -275,6 +275,7 @@ def test_sign_message_t2(client):
                 _pin_request(client),
                 messages.PassphraseRequest,
                 messages.ButtonRequest,
+                messages.ButtonRequest,
                 messages.MessageSignature,
             ]
         )
